@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Доставка')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('deliveries')}"></nav>
+
+<main class="container">
+    <h1>Доставка № <span th:text="${delivery.id}">0</span></h1>
+    <p class="page-sub"
+       th:text="${delivery.supplierName} + ' · '
+                + ${#temporals.format(delivery.deliveryDate, 'dd.MM.yyyy')}
+                + ' · приел: ' + ${delivery.userName}">детайли</p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="card">
+        <h2>Доставени артикули</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Лекарство</th><th>Партида</th><th>Срок на годност</th>
+                    <th class="num">Доставено</th><th class="num">Доставна цена</th><th class="num">Стойност</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="l : ${delivery.lines}">
+                    <td th:text="${l.medicineName}">Име</td>
+                    <td th:text="${l.batchNo} ?: '—'">—</td>
+                    <td th:text="${#temporals.format(l.expiryDate, 'dd.MM.yyyy')}">дата</td>
+                    <td class="num" th:text="${l.quantity}">0</td>
+                    <td class="num"
+                        th:text="${#numbers.formatDecimal(l.unitCost, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">0.00</td>
+                    <td class="num"
+                        th:text="${#numbers.formatDecimal(l.lineValue, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">
+                        0.00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="hint" th:if="${delivery.note}" th:text="'Забележка: ' + ${delivery.note}"></p>
+    </div>
+
+    <div class="actions">
+        <a class="btn secondary" th:href="@{/deliveries}">Назад към доставките</a>
+        <a class="btn" th:href="@{/deliveries/new}">Нова доставка</a>
+    </div>
+</main>
+</body>
+</html>

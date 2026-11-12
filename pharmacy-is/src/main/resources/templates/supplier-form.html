@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Доставчик')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('suppliers')}"></nav>
+
+<main class="container">
+    <h1 th:text="${supplier.id == null} ? 'Нов доставчик' : 'Редактиране на доставчик'">Доставчик</h1>
+
+    <div class="card" style="max-width:720px">
+        <form th:action="@{/suppliers/save}" th:object="${supplier}" method="post">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="field" th:classappend="${#fields.hasErrors('name')} ? 'field-error'">
+                <label for="name">Наименование *</label>
+                <input type="text" id="name" th:field="*{name}">
+                <div class="error-text" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+            </div>
+
+            <div class="grid cols-2">
+                <div class="field">
+                    <label for="eik">ЕИК</label>
+                    <input type="text" id="eik" th:field="*{eik}">
+                </div>
+                <div class="field">
+                    <label for="contactPerson">Лице за контакт</label>
+                    <input type="text" id="contactPerson" th:field="*{contactPerson}">
+                </div>
+            </div>
+
+            <div class="grid cols-2">
+                <div class="field">
+                    <label for="phone">Телефон</label>
+                    <input type="text" id="phone" th:field="*{phone}">
+                </div>
+                <div class="field" th:classappend="${#fields.hasErrors('email')} ? 'field-error'">
+                    <label for="email">Имейл</label>
+                    <input type="email" id="email" th:field="*{email}">
+                    <div class="error-text" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="address">Адрес</label>
+                <input type="text" id="address" th:field="*{address}">
+            </div>
+
+            <div class="checkbox-row">
+                <input type="checkbox" id="active" th:field="*{active}">
+                <label for="active">Активен доставчик</label>
+            </div>
+
+            <div class="actions" style="margin-top:18px">
+                <button type="submit" class="btn">Запази</button>
+                <a class="btn secondary" th:href="@{/suppliers}">Отказ</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Справки')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('reports')}"></nav>
+
+<main class="container">
+    <h1>Справки</h1>
+    <p class="page-sub">Достъпно само за управителя на аптеката.</p>
+
+    <div class="card">
+        <h2>Период</h2>
+        <form th:action="@{/reports}" method="get" class="grid cols-3">
+            <div class="field">
+                <label for="from">От дата</label>
+                <input type="date" id="from" name="from" th:value="${from}">
+            </div>
+            <div class="field">
+                <label for="to">До дата</label>
+                <input type="date" id="to" name="to" th:value="${to}">
+            </div>
+            <div class="field" style="display:flex;align-items:flex-end;gap:9px">
+                <button type="submit" class="btn">Покажи</button>
+                <a class="btn secondary" th:href="@{/reports}">Последни 30 дни</a>
+            </div>
+        </form>
+    </div>
+
+    <h2>Обобщение за периода</h2>
+    <div class="grid cols-4">
+        <div class="stat">
+            <div class="label">Приход</div>
+            <div class="value green"
+                 th:text="${#numbers.formatDecimal(profit.revenue, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">0.00</div>
+        </div>
+        <div class="stat">
+            <div class="label">Себестойност</div>
+            <div class="value"
+                 th:text="${#numbers.formatDecimal(profit.cost, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">0.00</div>
+        </div>
+        <div class="stat">
+            <div class="label">Печалба</div>
+            <div class="value green"
+                 th:text="${#numbers.formatDecimal(profit.profit, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">0.00</div>
+            <div class="hint" th:text="'надценка ' + ${profit.marginPercent} + ' %'">надценка</div>
+        </div>
+        <div class="stat">
+            <div class="label">Стойност на склада</div>
+            <div class="value"
+                 th:text="${#numbers.formatDecimal(stockValue, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">0.00</div>
+            <div class="hint">по доставни цени, без изтекли</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Дневен оборот</h2>
+        <div class="empty" th:if="${#lists.isEmpty(turnover)}">Няма продажби в избрания период.</div>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(turnover)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Дата</th><th class="num">Продажби</th>
+                    <th class="num">Продадени бройки</th><th class="num">Оборот</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${turnover}">
+                    <td th:text="${#temporals.format(t.day, 'dd.MM.yyyy')}">дата</td>
+                    <td class="num" th:text="${t.salesCount}">0</td>
+                    <td class="num" th:text="${t.itemCount}">0</td>
+                    <td class="num"
+                        th:text="${#numbers.formatDecimal(t.total, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">0.00</td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td>Общо</td>
+                    <td class="num" th:text="${profit.salesCount}">0</td>
+                    <td class="num" th:text="${profit.itemCount}">0</td>
+                    <td class="num"
+                        th:text="${#numbers.formatDecimal(profit.revenue, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">0.00</td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Най-продавани продукти</h2>
+        <div class="empty" th:if="${#lists.isEmpty(topSellers)}">Няма данни за периода.</div>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(topSellers)}">
+            <table>
+                <thead>
+                <tr>
+                    <th class="num">#</th><th>Лекарство</th><th>Активна съставка</th>
+                    <th class="num">Продадени</th><th class="num">Оборот</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t, i : ${topSellers}">
+                    <td class="num" th:text="${i.count}">1</td>
+                    <td th:text="${t.medicineName}">Име</td>
+                    <td th:text="${t.activeIngredient}">съставка</td>
+                    <td class="num" th:text="${t.quantitySold}">0</td>
+                    <td class="num"
+                        th:text="${#numbers.formatDecimal(t.revenue, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">0.00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

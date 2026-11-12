@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Детайли')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('medicines')}"></nav>
+
+<main class="container">
+    <h1 th:text="${stock.medicine.name}">Лекарство</h1>
+    <p class="page-sub"
+       th:text="${stock.medicine.activeIngredient} + ' · ' + ${stock.medicine.form}
+                + (${stock.medicine.strength} != null ? ' · ' + ${stock.medicine.strength} : '')">
+        описание
+    </p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="grid cols-4">
+        <div class="stat">
+            <div class="label">Годна наличност</div>
+            <div class="value" th:classappend="${stock.lowStock} ? 'red' : 'green'"
+                 th:text="${stock.sellableQuantity}">0</div>
+        </div>
+        <div class="stat">
+            <div class="label">Минимум</div>
+            <div class="value" th:text="${stock.medicine.minQuantity}">0</div>
+        </div>
+        <div class="stat">
+            <div class="label">Изтекла стока</div>
+            <div class="value" th:classappend="${stock.expiredQuantity > 0} ? 'red'"
+                 th:text="${stock.expiredQuantity}">0</div>
+        </div>
+        <div class="stat">
+            <div class="label">Цена</div>
+            <div class="value"
+                 th:text="${#numbers.formatDecimal(stock.medicine.unitPrice, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">
+                0.00</div>
+        </div>
+    </div>
+
+    <div class="alert alert-warn" th:if="${stock.lowStock}" style="margin-top:16px">
+        Наличността е под минимума — препоръчва се поръчка към доставчик.
+    </div>
+    <div class="alert alert-error" th:if="${not stock.medicine.active}" style="margin-top:16px">
+        Това лекарство е извадено от продажба.
+    </div>
+
+    <div class="card">
+        <h2>Партиди</h2>
+        <p class="hint">
+            При продажба системата изчерпва първо партидата с най-ранен срок на годност (FEFO).
+        </p>
+        <div class="empty" th:if="${#lists.isEmpty(batches)}">Няма заприходени партиди.</div>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(batches)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Партида</th><th>Срок на годност</th><th class="num">Доставени</th>
+                    <th class="num">Останали</th><th class="num">Доставна цена</th><th>Състояние</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="b : ${batches}">
+                    <td th:text="${b.batchNo} ?: '—'">—</td>
+                    <td th:text="${#temporals.format(b.expiryDate, 'dd.MM.yyyy')}">дата</td>
+                    <td class="num" th:text="${b.quantityReceived}">0</td>
+                    <td class="num" th:text="${b.quantityAvailable}">0</td>
+                    <td class="num"
+                        th:text="${#numbers.formatDecimal(b.unitCost, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">0.00</td>
+                    <td>
+                        <span th:with="days=${b.daysUntilExpiry(#temporals.createToday())}">
+                            <span class="pill pill-red" th:if="${days < 0}">изтекла</span>
+                            <span class="pill pill-grey" th:if="${days >= 0 and b.quantityAvailable == 0}">изчерпана</span>
+                            <span class="pill pill-amber"
+                                  th:if="${days >= 0 and days <= 90 and b.quantityAvailable > 0}"
+                                  th:text="'остават ' + ${days} + ' дни'">скоро</span>
+                            <span class="pill pill-green"
+                                  th:if="${days > 90 and b.quantityAvailable > 0}">годна</span>
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a class="btn secondary" th:href="@{/medicines}">Назад към каталога</a>
+        <a class="btn" sec:authorize="hasRole('MANAGER')"
+           th:href="@{/medicines/{id}/edit(id=${stock.medicine.id})}">Редактирай</a>
+        <form sec:authorize="hasRole('MANAGER')" method="post"
+              th:action="@{/medicines/{id}/active(id=${stock.medicine.id})}" class="inline-form">
+            <input type="hidden" name="active" th:value="${!stock.medicine.active}">
+            <button type="submit" class="btn"
+                    th:classappend="${stock.medicine.active} ? 'danger' : ''"
+                    th:text="${stock.medicine.active} ? 'Извади от продажба' : 'Върни в продажба'">
+                Извади</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

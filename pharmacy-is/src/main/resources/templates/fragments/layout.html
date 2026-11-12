@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · Аптека'">Аптека</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<body>
+
+<!-- Лента за навигация. Връзките за справки се виждат само от управителя. -->
+<nav th:fragment="nav(active)" class="navbar">
+    <a class="brand" th:href="@{/}">Аптека</a>
+
+    <a class="navlink" th:href="@{/}"
+       th:classappend="${active == 'home'} ? 'active'">Начало</a>
+    <a class="navlink" th:href="@{/sales}"
+       th:classappend="${active == 'sales'} ? 'active'">Каса</a>
+    <a class="navlink" th:href="@{/stock}"
+       th:classappend="${active == 'stock'} ? 'active'">Склад
+        <span class="badge-count" th:if="${alertCount != null and alertCount > 0}"
+              th:text="${alertCount}">0</span>
+    </a>
+    <a class="navlink" th:href="@{/medicines}"
+       th:classappend="${active == 'medicines'} ? 'active'">Лекарства</a>
+    <a class="navlink" th:href="@{/deliveries}"
+       th:classappend="${active == 'deliveries'} ? 'active'">Доставки</a>
+    <a class="navlink" th:href="@{/suppliers}"
+       th:classappend="${active == 'suppliers'} ? 'active'">Доставчици</a>
+    <a class="navlink" th:href="@{/sales/history}"
+       th:classappend="${active == 'history'} ? 'active'">Продажби</a>
+    <a class="navlink" sec:authorize="hasRole('MANAGER')" th:href="@{/reports}"
+       th:classappend="${active == 'reports'} ? 'active'">Справки</a>
+
+    <span class="spacer"></span>
+
+    <span class="userbox" th:if="${currentUser != null}">
+        <strong th:text="${currentUser.fullName}">Потребител</strong>
+        <span th:text="${currentUser.role.label}">Роля</span>
+    </span>
+    <!-- Изходът е POST заради CSRF защитата -->
+    <form th:action="@{/logout}" method="post" class="inline-form">
+        <button type="submit" class="btn secondary small">Изход</button>
+    </form>
+</nav>
+
+<!-- Съобщения след пренасочване (flash) -->
+<div th:fragment="flash">
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+</div>
+
+</body>
+</html>

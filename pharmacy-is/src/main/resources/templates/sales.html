@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Каса')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('sales')}"></nav>
+
+<main class="container">
+    <h1>Каса</h1>
+    <p class="page-sub">Намерете лекарството, добавете го в сметката и приключете продажбата.</p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="pos">
+        <!-- ЛЯВО: търсене на лекарство -->
+        <div class="card">
+            <h2>Търсене на лекарство</h2>
+            <form th:action="@{/sales}" method="get" class="search-row">
+                <input type="text" name="q" th:value="${q}" autofocus
+                       placeholder="Име или активна съставка (напр. Аналгин или ибупрофен)">
+                <button type="submit" class="btn">Търси</button>
+            </form>
+
+            <p class="hint" th:if="${results == null}">
+                Въведете поне част от името или активната съставка.
+            </p>
+
+            <div class="empty" th:if="${results != null and #lists.isEmpty(results)}">
+                Няма намерени лекарства по „<span th:text="${q}"></span>“.
+            </div>
+
+            <div class="table-wrap" th:if="${results != null and not #lists.isEmpty(results)}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Лекарство</th><th class="num">Цена</th>
+                        <th class="num">Наличност</th><th class="num">Брой</th><th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="s : ${results}">
+                        <td>
+                            <strong th:text="${s.medicine.name}">Име</strong>
+                            <span class="pill pill-blue" th:if="${s.medicine.prescriptionRequired}">Рецепта</span>
+                            <div class="hint"
+                                 th:text="${s.medicine.activeIngredient} + ' · ' + ${s.medicine.form}
+                                          + (${s.medicine.strength} != null ? ' · ' + ${s.medicine.strength} : '')">
+                                съставка
+                            </div>
+                        </td>
+                        <td class="num"
+                            th:text="${#numbers.formatDecimal(s.medicine.unitPrice, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">
+                            0.00
+                        </td>
+                        <td class="num">
+                            <span class="pill"
+                                  th:classappend="${s.sellableQuantity == 0} ? 'pill-red'
+                                                  : (${s.lowStock} ? 'pill-amber' : 'pill-green')"
+                                  th:text="${s.sellableQuantity}">0</span>
+                        </td>
+                        <td colspan="2">
+                            <form th:action="@{/sales/add}" method="post" class="actions">
+                                <input type="hidden" name="medicineId" th:value="${s.medicine.id}">
+                                <input type="hidden" name="q" th:value="${q}">
+                                <input type="number" name="quantity" value="1" min="1"
+                                       th:max="${s.sellableQuantity}" class="qty-input"
+                                       th:disabled="${s.sellableQuantity == 0}">
+                                <button type="submit" class="btn small"
+                                        th:disabled="${s.sellableQuantity == 0}">Добави</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ДЯСНО: текуща сметка -->
+        <div class="card">
+            <h2>Текуща сметка</h2>
+
+            <div class="empty" th:if="${cart.empty}">Сметката е празна.</div>
+
+            <div th:unless="${cart.empty}">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Лекарство</th><th class="num">Цена</th>
+                            <th class="num">Брой</th><th class="num">Сума</th><th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="line : ${cart.lines}">
+                            <td th:text="${line.medicineName}">Име</td>
+                            <td class="num"
+                                th:text="${#numbers.formatDecimal(line.unitPrice, 1, 'DEFAULT', 2, 'DEFAULT')}">0.00</td>
+                            <td class="num">
+                                <form th:action="@{/sales/update}" method="post" class="inline-form">
+                                    <input type="hidden" name="medicineId" th:value="${line.medicineId}">
+                                    <input type="number" name="quantity" th:value="${line.quantity}"
+                                           min="1" class="qty-input" onchange="this.form.submit()">
+                                </form>
+                            </td>
+                            <td class="num"
+                                th:text="${#numbers.formatDecimal(line.lineTotal, 1, 'DEFAULT', 2, 'DEFAULT')}">0.00</td>
+                            <td>
+                                <form th:action="@{/sales/remove}" method="post" class="inline-form">
+                                    <input type="hidden" name="medicineId" th:value="${line.medicineId}">
+                                    <button type="submit" class="btn secondary small"
+                                            title="Премахни">×</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Общата сума се изчислява автоматично -->
+                <div class="total-box">
+                    <span class="label">
+                        Общо (<span th:text="${cart.itemCount}">0</span> бр.)
+                    </span>
+                    <span class="amount"
+                          th:text="${#numbers.formatDecimal(cart.total, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">
+                        0.00 лв.
+                    </span>
+                </div>
+
+                <form th:action="@{/sales/checkout}" method="post">
+                    <button type="submit" class="btn big">Приключи продажбата</button>
+                </form>
+
+                <form th:action="@{/sales/clear}" method="post" style="margin-top:9px">
+                    <button type="submit" class="btn secondary small">Изчисти сметката</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

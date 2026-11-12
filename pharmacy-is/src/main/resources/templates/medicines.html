@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Лекарства')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('medicines')}"></nav>
+
+<main class="container">
+    <h1>Каталог на лекарствата</h1>
+    <p class="page-sub">Търсене по име или активна съставка.</p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="card">
+        <div class="search-row">
+            <form th:action="@{/medicines}" method="get" class="search-row" style="flex:1;margin:0">
+                <input type="text" name="q" th:value="${q}"
+                       placeholder="Име или активна съставка">
+                <button type="submit" class="btn">Търси</button>
+                <a class="btn secondary" th:href="@{/medicines}">Изчисти</a>
+            </form>
+            <a class="btn" sec:authorize="hasRole('MANAGER')"
+               th:href="@{/medicines/new}">+ Ново лекарство</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="empty" th:if="${#lists.isEmpty(stockList)}">Няма намерени лекарства.</div>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(stockList)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Наименование</th><th>Активна съставка</th><th>Форма</th>
+                    <th class="num">Цена</th><th class="num">Налични</th><th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${stockList}">
+                    <td>
+                        <strong th:text="${s.medicine.name}">Име</strong>
+                        <span class="pill pill-blue" th:if="${s.medicine.prescriptionRequired}">Рецепта</span>
+                        <div class="hint" th:if="${s.medicine.strength}"
+                             th:text="${s.medicine.strength}">доза</div>
+                    </td>
+                    <td th:text="${s.medicine.activeIngredient}">съставка</td>
+                    <td th:text="${s.medicine.form}">форма</td>
+                    <td class="num"
+                        th:text="${#numbers.formatDecimal(s.medicine.unitPrice, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">
+                        0.00</td>
+                    <td class="num">
+                        <span class="pill"
+                              th:classappend="${s.sellableQuantity == 0} ? 'pill-red'
+                                              : (${s.lowStock} ? 'pill-amber' : 'pill-green')"
+                              th:text="${s.sellableQuantity}">0</span>
+                    </td>
+                    <td>
+                        <a class="btn secondary small"
+                           th:href="@{/medicines/{id}(id=${s.medicine.id})}">Детайли</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

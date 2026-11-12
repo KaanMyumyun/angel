@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Склад')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('stock')}"></nav>
+
+<main class="container">
+    <h1>Склад</h1>
+    <p class="page-sub">Наличности по лекарства, с предупреждения за ниска наличност и изтичащ срок.</p>
+
+    <!-- Предупрежденията се показват веднага при влизане в секцията -->
+    <div class="alert alert-error" th:if="${not #lists.isEmpty(expired)}">
+        <strong th:text="${#lists.size(expired)}">0</strong> партиди с
+        <strong>изтекъл срок</strong> все още имат наличност — трябва да се извадят от продажба.
+        (Системата вече не ги предлага при продажба.)
+    </div>
+    <div class="alert alert-warn" th:if="${not #lists.isEmpty(expiring)}">
+        <strong th:text="${#lists.size(expiring)}">0</strong> партиди изтичат до
+        <strong th:text="${warningDays}">90</strong> дни.
+    </div>
+    <div class="alert alert-info" th:if="${not #lists.isEmpty(lowStock)}">
+        <strong th:text="${#lists.size(lowStock)}">0</strong> лекарства са под минималната наличност.
+    </div>
+    <div class="alert alert-success"
+         th:if="${#lists.isEmpty(expired) and #lists.isEmpty(expiring) and #lists.isEmpty(lowStock)}">
+        Складът е в норма.
+    </div>
+
+    <div class="card">
+        <h2>Търсене и филтри</h2>
+        <form th:action="@{/stock}" method="get" class="grid cols-3">
+            <div class="field">
+                <label for="q">Име или активна съставка</label>
+                <input type="text" id="q" name="q" th:value="${q}" placeholder="напр. ибупрофен">
+            </div>
+            <div class="field">
+                <label for="supplierId">Доставчик</label>
+                <select id="supplierId" name="supplierId">
+                    <option value="">— всички —</option>
+                    <option th:each="s : ${suppliers}" th:value="${s.id}" th:text="${s.name}"
+                            th:selected="${supplierId != null and supplierId == s.id}">доставчик</option>
+                </select>
+            </div>
+            <div class="field" style="display:flex;align-items:flex-end;gap:9px">
+                <button type="submit" class="btn">Приложи</button>
+                <a class="btn secondary" th:href="@{/stock}">Изчисти</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Наличности</h2>
+        <div class="empty" th:if="${#lists.isEmpty(stockList)}">Няма резултати по зададените филтри.</div>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(stockList)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Лекарство</th><th>Активна съставка</th><th>Форма</th>
+                    <th class="num">Налични</th><th class="num">Минимум</th>
+                    <th>Най-ранен срок</th><th class="num">Изтекли</th><th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${stockList}">
+                    <td>
+                        <strong th:text="${s.medicine.name}">Име</strong>
+                        <span class="pill pill-blue" th:if="${s.medicine.prescriptionRequired}">Рецепта</span>
+                    </td>
+                    <td th:text="${s.medicine.activeIngredient}">съставка</td>
+                    <td th:text="${s.medicine.form}">форма</td>
+                    <td class="num">
+                        <span class="pill"
+                              th:classappend="${s.sellableQuantity == 0} ? 'pill-red'
+                                              : (${s.lowStock} ? 'pill-amber' : 'pill-green')"
+                              th:text="${s.sellableQuantity}">0</span>
+                    </td>
+                    <td class="num" th:text="${s.medicine.minQuantity}">0</td>
+                    <td th:text="${s.nearestExpiry != null}
+                                 ? ${#temporals.format(s.nearestExpiry, 'dd.MM.yyyy')} : '—'">—</td>
+                    <td class="num">
+                        <span th:if="${s.expiredQuantity > 0}" class="pill pill-red"
+                              th:text="${s.expiredQuantity}">0</span>
+                        <span th:unless="${s.expiredQuantity > 0}" class="pill pill-grey">0</span>
+                    </td>
+                    <td>
+                        <a class="btn secondary small"
+                           th:href="@{/medicines/{id}(id=${s.medicine.id})}">Партиди</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

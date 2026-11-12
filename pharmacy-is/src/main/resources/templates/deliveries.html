@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Доставки')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('deliveries')}"></nav>
+
+<main class="container">
+    <h1>Доставки</h1>
+    <p class="page-sub">Всяка доставка създава нови партиди и увеличава наличността.</p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="actions" style="margin-bottom:16px">
+        <a class="btn" th:href="@{/deliveries/new}">+ Нова доставка</a>
+    </div>
+
+    <div class="card">
+        <div class="empty" th:if="${#lists.isEmpty(deliveries)}">Няма регистрирани доставки.</div>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(deliveries)}">
+            <table>
+                <thead>
+                <tr>
+                    <th class="num">№</th><th>Дата</th><th>Доставчик</th>
+                    <th>Документ</th><th>Приел</th><th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="d : ${deliveries}">
+                    <td class="num" th:text="${d.id}">0</td>
+                    <td th:text="${#temporals.format(d.deliveryDate, 'dd.MM.yyyy')}">дата</td>
+                    <td th:text="${d.supplierName}">доставчик</td>
+                    <td th:text="${d.documentNo} ?: '—'">—</td>
+                    <td th:text="${d.userName}">потребител</td>
+                    <td>
+                        <a class="btn secondary small"
+                           th:href="@{/deliveries/{id}(id=${d.id})}">Детайли</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

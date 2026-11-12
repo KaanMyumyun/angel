@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Начало')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('home')}"></nav>
+
+<main class="container">
+    <h1>Начало</h1>
+    <p class="page-sub">
+        Преглед на състоянието на аптеката към
+        <span th:text="${#temporals.format(#temporals.createToday(), 'dd.MM.yyyy')}">днес</span>.
+    </p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <!-- Оборот за деня -->
+    <div class="grid cols-3">
+        <div class="stat">
+            <div class="label">Оборот днес</div>
+            <div class="value green"
+                 th:text="${#lists.isEmpty(todayTurnover)} ? '0.00 лв.'
+                          : ${#numbers.formatDecimal(todayTurnover[0].total, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">
+                0.00 лв.
+            </div>
+        </div>
+        <div class="stat">
+            <div class="label">Продажби днес</div>
+            <div class="value"
+                 th:text="${#lists.isEmpty(todayTurnover)} ? '0' : ${todayTurnover[0].salesCount}">0</div>
+        </div>
+        <div class="stat">
+            <div class="label">Предупреждения</div>
+            <div class="value" th:classappend="${hasAlerts} ? 'red' : 'green'"
+                 th:text="${#lists.size(expired) + #lists.size(expiring) + #lists.size(lowStock)}">0</div>
+        </div>
+    </div>
+
+    <div class="alert alert-success" th:unless="${hasAlerts}" style="margin-top:18px">
+        Няма предупреждения — наличностите и сроковете са в норма.
+    </div>
+
+    <!-- Изтекъл срок -->
+    <div class="card" th:if="${not #lists.isEmpty(expired)}">
+        <h2 style="color:#b3261e">Изтекъл срок на годност — извадете от продажба</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Лекарство</th><th>Партида</th><th>Срок</th>
+                    <th class="num">Количество</th><th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="a : ${expired}">
+                    <td th:text="${a.medicineName}">Име</td>
+                    <td th:text="${a.batchNo}">—</td>
+                    <td>
+                        <span class="pill pill-red"
+                              th:text="${#temporals.format(a.expiryDate, 'dd.MM.yyyy')}">дата</span>
+                    </td>
+                    <td class="num" th:text="${a.quantity}">0</td>
+                    <td><a class="btn secondary small"
+                           th:href="@{/medicines/{id}(id=${a.medicineId})}">Детайли</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Изтичащ срок -->
+    <div class="card" th:if="${not #lists.isEmpty(expiring)}">
+        <h2 style="color:#8a5a00">Изтичащ срок
+            (до <span th:text="${warningDays}">90</span> дни)</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Лекарство</th><th>Партида</th><th>Срок</th>
+                    <th class="num">Остават</th><th class="num">Количество</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="a : ${expiring}">
+                    <td th:text="${a.medicineName}">Име</td>
+                    <td th:text="${a.batchNo}">—</td>
+                    <td th:text="${#temporals.format(a.expiryDate, 'dd.MM.yyyy')}">дата</td>
+                    <td class="num">
+                        <span class="pill" th:classappend="${a.daysLeft <= 30} ? 'pill-red' : 'pill-amber'"
+                              th:text="${a.daysLeft} + ' дни'">0 дни</span>
+                    </td>
+                    <td class="num" th:text="${a.quantity}">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Ниска наличност -->
+    <div class="card" th:if="${not #lists.isEmpty(lowStock)}">
+        <h2 style="color:#1c4f8a">Ниска наличност — нужна е поръчка</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Лекарство</th><th class="num">Налични</th>
+                    <th class="num">Минимум</th><th class="num">Недостиг</th><th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="a : ${lowStock}">
+                    <td th:text="${a.medicineName}">Име</td>
+                    <td class="num"><span class="pill pill-red" th:text="${a.quantity}">0</span></td>
+                    <td class="num" th:text="${a.minQuantity}">0</td>
+                    <td class="num" th:text="${a.minQuantity - a.quantity}">0</td>
+                    <td><a class="btn secondary small" th:href="@{/deliveries/new}">Нова доставка</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h2>Бързи действия</h2>
+    <div class="actions">
+        <a class="btn" th:href="@{/sales}">Нова продажба</a>
+        <a class="btn secondary" th:href="@{/deliveries/new}">Приемане на доставка</a>
+        <a class="btn secondary" th:href="@{/stock}">Преглед на склада</a>
+    </div>
+</main>
+</body>
+</html>

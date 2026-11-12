@@ -1,0 +1,215 @@
+/* Аптека - информационна система. Без външни библиотеки: работи и без интернет. */
+
+:root {
+    --green-700: #11704a;
+    --green-600: #15855a;
+    --green-50:  #e8f5ef;
+    --ink:       #16211c;
+    --muted:     #5c6b64;
+    --line:      #d9e2dd;
+    --bg:        #f4f7f5;
+    --card:      #ffffff;
+    --red:       #b3261e;
+    --red-bg:    #fdecea;
+    --amber:     #8a5a00;
+    --amber-bg:  #fff4d6;
+    --blue:      #1c4f8a;
+    --blue-bg:   #e8f0fa;
+    --radius:    10px;
+    --shadow:    0 1px 3px rgba(16, 32, 25, .09), 0 1px 2px rgba(16, 32, 25, .05);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--bg);
+}
+
+a { color: var(--green-700); }
+
+/* ---------- Лента за навигация ---------- */
+.navbar {
+    background: var(--green-700);
+    color: #fff;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow);
+}
+.navbar .brand {
+    font-weight: 700;
+    font-size: 17px;
+    padding: 14px 16px 14px 0;
+    color: #fff;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.navbar a.navlink {
+    color: #dff0e7;
+    text-decoration: none;
+    padding: 15px 13px;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+}
+.navbar a.navlink:hover { color: #fff; background: rgba(255, 255, 255, .08); }
+.navbar a.navlink.active { color: #fff; border-bottom-color: #ffd34d; }
+.navbar .spacer { flex: 1; }
+.navbar .userbox { font-size: 13px; color: #dff0e7; padding: 0 12px; text-align: right; }
+.navbar .userbox strong { color: #fff; display: block; }
+
+.badge-count {
+    background: #ffd34d;
+    color: #5a4200;
+    border-radius: 11px;
+    padding: 1px 7px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 5px;
+}
+
+/* ---------- Оформление ---------- */
+.container { max-width: 1180px; margin: 0 auto; padding: 22px 20px 60px; }
+h1 { font-size: 23px; margin: 0 0 4px; }
+h2 { font-size: 18px; margin: 26px 0 12px; }
+.page-sub { color: var(--muted); margin: 0 0 20px; }
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+}
+.card > h2:first-child { margin-top: 0; }
+
+.grid { display: grid; gap: 16px; }
+.grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+.grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.grid.cols-4 { grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); }
+
+/* ---------- Показатели ---------- */
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 15px 17px; }
+.stat .label { color: var(--muted); font-size: 12.5px; text-transform: uppercase; letter-spacing: .4px; }
+.stat .value { font-size: 25px; font-weight: 700; margin-top: 3px; font-variant-numeric: tabular-nums; }
+.stat .value.green { color: var(--green-700); }
+.stat .value.red { color: var(--red); }
+
+/* ---------- Таблици ---------- */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 9px 11px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); font-weight: 600; background: #fafcfb; }
+tbody tr:hover { background: #f7faf8; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.table-wrap { overflow-x: auto; }
+tfoot td { font-weight: 700; border-top: 2px solid var(--line); border-bottom: none; background: #fafcfb; }
+
+/* ---------- Форми ---------- */
+label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #33433b; }
+input[type=text], input[type=number], input[type=date], input[type=password],
+input[type=email], select, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #c3d0c9;
+    border-radius: 7px;
+    font: inherit;
+    background: #fff;
+    color: var(--ink);
+}
+input:focus, select:focus, textarea:focus {
+    outline: 2px solid var(--green-600);
+    outline-offset: -1px;
+    border-color: var(--green-600);
+}
+.field { margin-bottom: 14px; }
+.field-error input, .field-error select { border-color: var(--red); }
+.error-text { color: var(--red); font-size: 12.5px; margin-top: 3px; }
+.hint { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+.checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.checkbox-row input { width: auto; }
+.checkbox-row label { margin: 0; font-weight: 500; }
+
+/* ---------- Бутони ---------- */
+.btn {
+    display: inline-block;
+    padding: 8px 15px;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    background: var(--green-600);
+    color: #fff;
+    white-space: nowrap;
+}
+.btn:hover { background: var(--green-700); }
+.btn.secondary { background: #fff; color: var(--ink); border-color: #c3d0c9; }
+.btn.secondary:hover { background: #eef3f0; }
+.btn.danger { background: var(--red); }
+.btn.danger:hover { background: #8f1e17; }
+.btn.small { padding: 4px 10px; font-size: 13px; }
+.btn.big { padding: 12px 22px; font-size: 16px; width: 100%; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.actions { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
+
+/* ---------- Съобщения ---------- */
+.alert { padding: 11px 14px; border-radius: 8px; margin-bottom: 15px; border: 1px solid; font-size: 14px; }
+.alert-success { background: var(--green-50); border-color: #a8d8c1; color: #0d5c3c; }
+.alert-error   { background: var(--red-bg); border-color: #f0b4ae; color: var(--red); }
+.alert-warn    { background: var(--amber-bg); border-color: #e8cd84; color: var(--amber); }
+.alert-info    { background: var(--blue-bg); border-color: #b3cbe8; color: var(--blue); }
+
+.pill { display: inline-block; padding: 2px 9px; border-radius: 11px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pill-red   { background: var(--red-bg); color: var(--red); }
+.pill-amber { background: var(--amber-bg); color: var(--amber); }
+.pill-green { background: var(--green-50); color: var(--green-700); }
+.pill-grey  { background: #eceeed; color: var(--muted); }
+.pill-blue  { background: var(--blue-bg); color: var(--blue); }
+
+.empty { color: var(--muted); padding: 22px; text-align: center; font-style: italic; }
+
+/* ---------- Каса ---------- */
+.pos { display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: start; }
+@media (max-width: 900px) { .pos { grid-template-columns: 1fr; } }
+.search-row { display: flex; gap: 9px; margin-bottom: 14px; }
+.search-row input { flex: 1; }
+.total-box {
+    background: var(--green-50);
+    border: 1px solid #a8d8c1;
+    border-radius: var(--radius);
+    padding: 15px 17px;
+    margin: 14px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+.total-box .label { font-weight: 600; color: var(--green-700); }
+.total-box .amount { font-size: 29px; font-weight: 700; color: var(--green-700); font-variant-numeric: tabular-nums; }
+.inline-form { display: inline; }
+.qty-input { width: 68px; }
+
+/* ---------- Вход ---------- */
+.login-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+.login-box { background: var(--card); border: 1px solid var(--line); border-radius: 13px; padding: 30px; width: 100%; max-width: 390px; box-shadow: 0 4px 18px rgba(16, 32, 25, .1); }
+.login-box h1 { text-align: center; color: var(--green-700); margin-bottom: 4px; }
+.login-box .page-sub { text-align: center; margin-bottom: 22px; }
+.demo-users { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.demo-users code { background: #eef3f0; padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+
+/* ---------- Касова бележка ---------- */
+.receipt { max-width: 500px; margin: 0 auto; }
+.receipt .head { text-align: center; border-bottom: 2px dashed var(--line); padding-bottom: 14px; margin-bottom: 14px; }
+
+@media print {
+    .navbar, .actions, .no-print { display: none !important; }
+    body { background: #fff; }
+    .card { border: none; box-shadow: none; }
+}

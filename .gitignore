@@ -1,0 +1,25 @@
+# Maven build output
+target/
+*.class
+
+# Jar files, but keep the Maven wrapper if it is ever vendored
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+nbproject/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temporary files
+*.log
+*~

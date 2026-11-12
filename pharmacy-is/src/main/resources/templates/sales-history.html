@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Продажби')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('history')}"></nav>
+
+<main class="container">
+    <h1>Продажби</h1>
+    <p class="page-sub">Последните 100 продажби.</p>
+
+    <div class="card">
+        <div class="empty" th:if="${#lists.isEmpty(sales)}">Все още няма регистрирани продажби.</div>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(sales)}">
+            <table>
+                <thead>
+                <tr>
+                    <th class="num">№</th><th>Дата и час</th><th>Обслужил</th>
+                    <th class="num">Сума</th><th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${sales}">
+                    <td class="num" th:text="${s.id}">0</td>
+                    <td th:text="${#temporals.format(s.soldAt, 'dd.MM.yyyy HH:mm')}">дата</td>
+                    <td th:text="${s.userName}">потребител</td>
+                    <td class="num"
+                        th:text="${#numbers.formatDecimal(s.total, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">0.00</td>
+                    <td>
+                        <a class="btn secondary small"
+                           th:href="@{/sales/receipt/{id}(id=${s.id})}">Бележка</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Вход')}"></head>
+<body>
+<div class="login-page">
+    <div class="login-box">
+        <h1>Аптека</h1>
+        <p class="page-sub">Информационна система</p>
+
+        <div class="alert alert-error" th:if="${param.error}">
+            Грешно потребителско име или парола.
+        </div>
+        <div class="alert alert-success" th:if="${param.logout}">
+            Излязохте от системата.
+        </div>
+
+        <!-- Thymeleaf добавя скрит CSRF токен автоматично -->
+        <form th:action="@{/login}" method="post">
+            <div class="field">
+                <label for="username">Потребителско име</label>
+                <input type="text" id="username" name="username" required autofocus
+                       autocomplete="username">
+            </div>
+            <div class="field">
+                <label for="password">Парола</label>
+                <input type="password" id="password" name="password" required
+                       autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn big">Вход</button>
+        </form>
+
+        <div class="demo-users">
+            <strong>Демонстрационни акаунти:</strong><br>
+            Управител: <code>manager</code> / <code>manager123</code><br>
+            Фармацевт: <code>pharmacist</code> / <code>pharma123</code>
+        </div>
+    </div>
+</div>
+</body>
+</html>

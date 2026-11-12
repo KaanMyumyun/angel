@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Лекарство')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('medicines')}"></nav>
+
+<main class="container">
+    <h1 th:text="${medicine.id == null} ? 'Ново лекарство' : 'Редактиране на лекарство'">Лекарство</h1>
+    <p class="page-sub">Полетата със * са задължителни.</p>
+
+    <div class="card" style="max-width:720px">
+        <form th:action="@{/medicines/save}" th:object="${medicine}" method="post">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="field" th:classappend="${#fields.hasErrors('name')} ? 'field-error'">
+                <label for="name">Наименование *</label>
+                <input type="text" id="name" th:field="*{name}" placeholder="напр. Аналгин 500 mg">
+                <div class="error-text" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+            </div>
+
+            <div class="field" th:classappend="${#fields.hasErrors('activeIngredient')} ? 'field-error'">
+                <label for="activeIngredient">Активна съставка *</label>
+                <input type="text" id="activeIngredient" th:field="*{activeIngredient}"
+                       placeholder="напр. Метамизол натрий">
+                <div class="error-text" th:if="${#fields.hasErrors('activeIngredient')}"
+                     th:errors="*{activeIngredient}"></div>
+            </div>
+
+            <div class="grid cols-2">
+                <div class="field" th:classappend="${#fields.hasErrors('form')} ? 'field-error'">
+                    <label for="form">Форма *</label>
+                    <select id="form" th:field="*{form}">
+                        <option value="">— изберете —</option>
+                        <option th:each="f : ${forms}" th:value="${f}" th:text="${f}">форма</option>
+                    </select>
+                    <div class="error-text" th:if="${#fields.hasErrors('form')}" th:errors="*{form}"></div>
+                </div>
+
+                <div class="field">
+                    <label for="strength">Доза / концентрация</label>
+                    <input type="text" id="strength" th:field="*{strength}" placeholder="напр. 500 mg">
+                </div>
+            </div>
+
+            <div class="grid cols-2">
+                <div class="field" th:classappend="${#fields.hasErrors('unitPrice')} ? 'field-error'">
+                    <label for="unitPrice">Продажна цена (лв.) *</label>
+                    <input type="number" id="unitPrice" th:field="*{unitPrice}" step="0.01" min="0">
+                    <div class="error-text" th:if="${#fields.hasErrors('unitPrice')}"
+                         th:errors="*{unitPrice}"></div>
+                </div>
+
+                <div class="field" th:classappend="${#fields.hasErrors('minQuantity')} ? 'field-error'">
+                    <label for="minQuantity">Минимална наличност *</label>
+                    <input type="number" id="minQuantity" th:field="*{minQuantity}" min="0">
+                    <div class="hint">Под този брой системата предупреждава за поръчка.</div>
+                    <div class="error-text" th:if="${#fields.hasErrors('minQuantity')}"
+                         th:errors="*{minQuantity}"></div>
+                </div>
+            </div>
+
+            <div class="checkbox-row">
+                <input type="checkbox" id="prescriptionRequired" th:field="*{prescriptionRequired}">
+                <label for="prescriptionRequired">Отпуска се по лекарско предписание</label>
+            </div>
+            <div class="checkbox-row">
+                <input type="checkbox" id="active" th:field="*{active}">
+                <label for="active">Активно (предлага се за продажба)</label>
+            </div>
+
+            <div class="actions" style="margin-top:18px">
+                <button type="submit" class="btn">Запази</button>
+                <a class="btn secondary" th:href="@{/medicines}">Отказ</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>

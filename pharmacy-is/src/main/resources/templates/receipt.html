@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Касова бележка')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('sales')}"></nav>
+
+<main class="container">
+    <div class="alert alert-success no-print">
+        Продажбата е записана. Наличностите са намалени автоматично.
+    </div>
+
+    <div class="card receipt">
+        <div class="head">
+            <h1>Аптека</h1>
+            <div>Касова бележка № <strong th:text="${sale.id}">0</strong></div>
+            <div class="hint"
+                 th:text="${#temporals.format(sale.soldAt, 'dd.MM.yyyy HH:mm')} + ' · ' + ${sale.userName}">
+                дата
+            </div>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Артикул</th><th class="num">Брой</th>
+                <th class="num">Цена</th><th class="num">Сума</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${sale.items}">
+                <td>
+                    <span th:text="${item.medicineName}">Име</span>
+                    <div class="hint" th:if="${item.batchNo}"
+                         th:text="'партида ' + ${item.batchNo}">партида</div>
+                </td>
+                <td class="num" th:text="${item.quantity}">0</td>
+                <td class="num"
+                    th:text="${#numbers.formatDecimal(item.unitPrice, 1, 'DEFAULT', 2, 'DEFAULT')}">0.00</td>
+                <td class="num"
+                    th:text="${#numbers.formatDecimal(item.lineTotal, 1, 'DEFAULT', 2, 'DEFAULT')}">0.00</td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td colspan="3">ОБЩО</td>
+                <td class="num"
+                    th:text="${#numbers.formatDecimal(sale.total, 1, 'DEFAULT', 2, 'DEFAULT')} + ' лв.'">
+                    0.00 лв.
+                </td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="actions no-print" style="justify-content:center">
+        <a class="btn" th:href="@{/sales}">Нова продажба</a>
+        <button class="btn secondary" onclick="window.print()">Печат</button>
+        <a class="btn secondary" th:href="@{/sales/history}">Всички продажби</a>
+    </div>
+</main>
+</body>
+</html>
